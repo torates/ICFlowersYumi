@@ -1,0 +1,100 @@
+type VerifyResult = 
+ variant {
+   err: variant {
+          CollectionNoExist;
+          SoldOut;
+          TxNotFound;
+          VerifyTxErr;
+        };
+   ok: nat;
+ };
+type Topic = variant {claim;};
+type TokenIdentifier = text;
+type Time = int;
+type Subscriber = record {callback: func (Publish) -> () oneway;};
+type Result = 
+ variant {
+   err: CollectionErr;
+   ok;
+ };
+type Publish__1 = 
+ record {
+   publisher: principal;
+   to: principal;
+   tokenIds: vec TokenIdentifier;
+   topic: Topic;
+ };
+type Publish = 
+ record {
+   publisher: principal;
+   to: principal;
+   tokenIds: vec TokenIdentifier;
+   topic: Topic;
+ };
+type Price = nat64;
+type Links = 
+ record {
+   discord: opt text;
+   instagram: opt text;
+   medium: opt text;
+   telegram: opt text;
+   twitter: opt text;
+   yoursite: opt text;
+ };
+type LaunchPadActor = 
+ service {
+   addWhitelist: (principal, vec record {
+                                   principal;
+                                   nat;
+                                 }) -> ();
+   canClaim: (principal) -> (bool) query;
+   claim: (nat64, principal, nat) -> (VerifyResult);
+   importCollection: (CollectionInfo) -> (Result);
+   listCollections: () -> (vec CollectionInfo) query;
+   listWhitelist: (principal) ->
+    (vec record {
+           principal;
+           vec record {
+                 principal;
+                 nat;
+               };
+         }) query;
+   massEnableClaim: (principal, vec nat) -> () oneway;
+   publish: (Publish__1) -> () oneway;
+   queryPlatformFee: () ->
+    (record {
+       account: AccountIdentifier;
+       fee: Price;
+     }) query;
+   setPlatformAccount: (principal) -> ();
+   setPlatformFee: (Price) -> ();
+   subscribe: (Subscriber) -> () oneway;
+   updateCollection: (CollectionInfo) -> (bool);
+ };
+type CollectionInfo = 
+ record {
+   addTime: Time;
+   avaliable: nat;
+   description: text;
+   endTime: Time;
+   id: principal;
+   links: opt Links;
+   name: text;
+   normalCount: nat;
+   price: Price;
+   starTime: Time;
+   totalSupply: nat;
+   whitePrice: Price;
+   whitelistCount: nat;
+   whitelistPerCount: nat;
+   whitelistTimeEnd: Time;
+   whitelistTimeStart: Time;
+ };
+type CollectionErr = 
+ variant {
+   guestCannotCreateCollection;
+   maxCollNum;
+   perMaxCollNum;
+ };
+type AccountIdentifier = text;
+service : (principal) -> LaunchPadActor
